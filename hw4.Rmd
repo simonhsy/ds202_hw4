@@ -1,0 +1,75 @@
+---
+title: "hw4"
+author: "Hongsheng Yin"
+date: "March 7, 2019"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(datasets)
+```
+
+```{r}
+ChickWeight <- ChickWeight
+```
+1.Get a frequency breakdown of the number of chicks, their average weight and the standard deviation of the weights in each of the diets at the start of the study. Store the resulting data frame in a variable named weight0 and print.
+
+2.Each chick should have twelve weight measurements. Use the dplyr package to identify how many measurements are there for each chick. Extract a subset of the data for all chicks with complete information, name the data set complete, and print the first 3 rows. (Hint: you might want to use mutate to introduce a helper variable consisting of the number of observations)
+
+3.In the complete data set introduce a new variable that measures the current weight difference compared to day 0. Name this variable  weightgain and print the first 3 rows of the new data frame.
+
+4.Use {ggplot2} to create side-by-side boxplots of weightgain by Diet for day 21. Describe the relationship in 2-3 sentences. Change the order of the categories in the Diet variable such that the boxplots are ordered by median weightgain, and the lower limit of the y axis should be 0.
+
+5.Answer the following question using numerical and graphical summary: Which chick gained the most weight and which gained the least weight? What diets were they on?
+
+6.For the chicks with the least and the most weight at time 0, plot their growth trajectories over time. 
+
+5 pts of extra credit: Add to the plot the average growth trajectory for all chicks (calculated as the mean weight for each chick at each time). How do the trajectories compare?
+
+7.What else do you find interesting in the dataset? Show your exploratory analysis.
+---------------------------------------------------------------------------------------------------'
+
+1.
+
+```{r}
+weight0 <- ChickWeight %>% group_by(Diet) %>% filter(Time == 0) %>% summarize(numChicks = n_distinct(Chick), AvgWeight = mean(weight, na.rm = TRUE), SDWeight = sd(weight, na.rm=TRUE))
+
+weight0
+```
+
+
+2. 
+```{r}
+complete <- ChickWeight %>% group_by(Chick) %>% mutate(numObs = n()) %>% filter(numObs == 12)
+complete <- select(complete, -numObs)
+head(complete, 3) #print the first 3 rows
+```
+
+3.
+```{r}
+complete <- complete %>% group_by(Chick) %>% mutate(weight0 = weight[Time == 0]) %>% mutate(weightgain = weight- weight0)
+complete <- select(complete, -weight0) #Compare to day 0
+head(complete, 3) #Print 3 rows
+```
+
+
+4.
+```{r}
+library(ggplot2)
+day21 <- filter(complete, Time == 21)
+ggplot(day21, aes(x=reorder(Diet, weightgain), y= weightgain)) + geom_boxplot() + ylim(0, max(day21$weightgain)) + xlab("Diet Category") + ylab("Weight Gain") 
+#create side-by-side boxplots of weightgain by Diet
+```
+5.
+6.
+
+7.Not all chick gaining weight at first. There are some weight loss in time 0 to time 2 such as chick 3 in diet 1. 
+```{r}
+complete <- ChickWeight %>% group_by(Chick) %>% mutate(numObs = n()) %>% filter(numObs == 12)
+complete <- select(complete, -numObs)
+head(complete, 150) 
+```
